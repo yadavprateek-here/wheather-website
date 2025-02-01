@@ -4,48 +4,63 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Weather Forecast App</title>
-  <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js" crossorigin="anonymous"></script>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-400 to-purple-600 p-4">
+<body class="min-h-screen bg-gradient-to-br from-blue-500 via-purple-600 to-indigo-800 text-gray-100 flex items-center justify-center p-4">
   
-  <div class="w-full max-w-lg bg-white bg-opacity-20 backdrop-blur-lg rounded-2xl shadow-lg p-6 text-center text-white">
-    <h1 class="text-4xl font-bold mb-4">🌤 Weather App</h1>
+  <!-- Weather App Container -->
+  <div class="w-full max-w-2xl bg-white bg-opacity-20 backdrop-blur-lg rounded-2xl shadow-2xl p-6 text-center">
+    <!-- Header -->
+    <h1 class="text-4xl font-extrabold mb-6 text-white flex items-center justify-center gap-2">
+      🌤 Weather App
+    </h1>
 
     <!-- Search Section -->
-    <div class="w-full max-w-md mb-6">
+    <div class="mb-8">
+      <div class="relative">
         <input
-    type="text"
-    id="cityInput"
-    placeholder="Enter a City"
-    class="w-full p-3 border border-gray-300 rounded-lg outline-none text-gray-900 placeholder-gray-500 bg-white"
-/>
-
-<!-- Error Message Container -->
-<div id="errorMessage" class="hidden text-red-500 text-center mt-2"></div>
-
+          type="text"
+          id="cityInput"
+          placeholder="Enter a city..."
+          class="w-full p-4 pr-12 bg-white bg-opacity-80 rounded-lg text-gray-700 placeholder-gray-400 shadow-lg outline-none focus:ring-2 focus:ring-blue-500"
+        />
         <button
-            id="searchBtn"
-            class="w-full mt-3 bg-gradient-to-r from-blue-500 to-blue-700 text-white py-3 rounded-lg hover:opacity-80 transition duration-300 flex items-center justify-center"
+          id="searchBtn"
+          class="absolute right-3 top-1/2 transform -translate-y-1/2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 transition"
         >
-            <i class="fas fa-search mr-2"></i> Search
+          <i class="fas fa-search"></i>
         </button>
+      </div>
+      <p id="errorMessage" class="hidden mt-3 text-red-400 text-sm"></p>
     </div>
-    
-    
-    <!-- current Location -->
+
+    <!-- Current Location Button -->
     <button
       id="currentLocationBtn"
-      class="bg-green-500 text-white p-3 rounded-lg hover:bg-green-700 transition w-full mb-6"
+      class="bg-green-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-green-700 transition mb-8 w-full"
     >
       <i class="fas fa-map-marker-alt"></i> Use Current Location
     </button>
 
-    <!-- Weather Info -->
-    <div id="weatherInfo" class="text-lg"></div>
+    <!-- Recent Cities Dropdown -->
+    <div id="recentCitiesContainer" class="hidden mb-8">
+      <label for="recentCities" class="block text-sm font-semibold text-gray-200 mb-2">
+        Recently Searched Cities
+      </label>
+      <select
+        id="recentCities"
+        class="w-full p-3 bg-white bg-opacity-80 rounded-lg text-gray-700 shadow-lg outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        <option value="" disabled selected>Select a city</option>
+      </select>
+    </div>
 
-    <!-- Forecast -->
-    <div id="forecastInfo" class="mt-6"></div>
+    <!-- Weather Information -->
+    <div id="weatherInfo" class="space-y-4"></div>
+
+    <!-- 5-Day Forecast -->
+    <div id="forecastInfo" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8"></div>
   </div>
 
   <script src="script.js"></script>
