@@ -1,3 +1,21 @@
+// Show loading state
+function showLoading() {
+    const weatherInfo = document.getElementById("weatherInfo");
+    weatherInfo.innerHTML = `<p class="text-white text-lg">Fetching weather data...</p>`;
+}
+
+// Hide loading state
+function hideLoading() {
+    const weatherInfo = document.getElementById("weatherInfo");
+    weatherInfo.innerHTML = "";
+}
+
+// Show error message
+function showError(message) {
+    const weatherInfo = document.getElementById("weatherInfo");
+    weatherInfo.innerHTML = `<p class="text-red-500 font-bold">${message}</p>`;
+}
+
 // Function to fetch current weather data from Open-Meteo API
 async function fetchCurrentWeather(latitude, longitude) {
     try {
@@ -5,11 +23,11 @@ async function fetchCurrentWeather(latitude, longitude) {
         const response = await fetch(
             `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&timezone=auto`
         );
-        if (!response.ok) throw new Error("Failed to fetch weather data");
+        if (!response.ok) throw new Error("Failed to fetch current weather data");
         const data = await response.json();
         return data;
     } catch (error) {
-        showError(error.message);
+        showError(error.message || "An error occurred while fetching current weather");
     } finally {
         hideLoading();
     }
@@ -21,11 +39,11 @@ async function fetchDailyForecast(latitude, longitude) {
         const response = await fetch(
             `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=weathercode,temperature_2m_max,temperature_2m_min,windspeed_10m_max&timezone=auto`
         );
-        if (!response.ok) throw new Error("Failed to fetch forecast data");
+        if (!response.ok) throw new Error("Failed to fetch daily forecast data");
         const data = await response.json();
         return data;
     } catch (error) {
-        showError(error.message);
+        showError(error.message || "An error occurred while fetching the forecast");
     }
 }
 
@@ -44,10 +62,10 @@ async function getCoordinates(city) {
                 longitude: data.results[0].longitude,
             };
         } else {
-            throw new Error("City not found");
+            throw new Error("City not found. Please check the spelling or try another city.");
         }
     } catch (error) {
-        showError(error.message);
+        showError(error.message || "An error occurred while fetching coordinates");
     } finally {
         hideLoading();
     }
@@ -71,7 +89,13 @@ function getWeatherDetails(weathercode) {
     return weatherData[weathercode] || { desc: "Unknown", icon: "fas fa-question-circle text-gray-500" };
 }
 
-// Function to display current weather
+// Function to format the date to a more readable format
+function formatDate(date) {
+    const options = { weekday: 'long', month: 'short', day: 'numeric' };
+    return new Date(date).toLocaleDateString('en-US', options);
+}
+
+// Function to display current weather and forecast
 function displayWeather(currentWeather, dailyForecast) {
     const weatherInfo = document.getElementById("weatherInfo");
     const weatherDetails = getWeatherDetails(currentWeather.current_weather.weathercode);
@@ -100,7 +124,7 @@ function displayForecast(dailyForecast) {
         const weatherDetails = getWeatherDetails(dailyForecast.daily.weathercode[index]);
         forecastInfo.innerHTML += `
             <div class="bg-white bg-opacity-30 backdrop-blur-lg p-4 rounded-lg text-center text-white mb-2">
-                <p class="font-bold">${date}</p>
+                <p class="font-bold">${formatDate(date)}</p>
                 <div class="text-4xl mt-2">
                     <i class="${weatherDetails.icon}"></i>
                 </div>
@@ -113,29 +137,11 @@ function displayForecast(dailyForecast) {
     });
 }
 
-// Show loading state
-function showLoading() {
-    const weatherInfo = document.getElementById("weatherInfo");
-    weatherInfo.innerHTML = `<p class="text-white text-lg">Fetching weather data...</p>`;
-}
-
-// Hide loading state
-function hideLoading() {
-    const weatherInfo = document.getElementById("weatherInfo");
-    weatherInfo.innerHTML = "";
-}
-
-// Show error message
-function showError(message) {
-    const weatherInfo = document.getElementById("weatherInfo");
-    weatherInfo.innerHTML = `<p class="text-red-500 font-bold">${message}</p>`;
-}
-
 // Event listener for search button
 document.getElementById("searchBtn").addEventListener("click", async () => {
     const city = document.getElementById("cityInput").value.trim();
     if (!city) {
-        showError("Please enter a city name");
+        showError("Please enter a valid city name.");
         return;
     }
     try {
@@ -144,7 +150,7 @@ document.getElementById("searchBtn").addEventListener("click", async () => {
         const dailyForecast = await fetchDailyForecast(latitude, longitude);
         displayWeather(currentWeather, dailyForecast);
     } catch (error) {
-        showError(error.message);
+        showError("Something went wrong. Please try again later.");
     }
 });
 
@@ -153,11 +159,15 @@ document.getElementById("currentLocationBtn").addEventListener("click", async ()
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(async (position) => {
             const { latitude, longitude } = position.coords;
-            const currentWeather = await fetchCurrentWeather(latitude, longitude);
-            const dailyForecast = await fetchDailyForecast(latitude, longitude);
-            displayWeather(currentWeather, dailyForecast);
+            try {
+                const currentWeather = await fetchCurrentWeather(latitude, longitude);
+                const dailyForecast = await fetchDailyForecast(latitude, longitude);
+                displayWeather(currentWeather, dailyForecast);
+            } catch (error) {
+                showError("An error occurred while fetching data for your location.");
+            }
         }, () => {
-            showError("Location access denied.");
+            showError("Location access denied. Please enable location services.");
         });
     } else {
         showError("Geolocation is not supported by your browser.");
